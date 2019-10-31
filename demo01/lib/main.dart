@@ -53,7 +53,15 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
         automaticallyImplyLeading: true,
         actions: <Widget>[
           PopupMenuButton(
-            onSelected: (val)=>print('Selected item $val'),
+            onSelected: (val){
+              var position = -1;
+              switch(val){
+                case 'A':position=0;break;
+                case 'B':position=1;break;
+                case 'C':position=2;break;
+              }
+              _tabController.index = position;
+            },
             icon: Icon(Icons.more_vert),
             itemBuilder: (context)=>List.generate(_abs.length, (index)=>PopupMenuItem(value: _abs[index],child: Text(_abs[index]),)),
           )
@@ -103,6 +111,7 @@ class HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
       floatingActionButton: FloatingActionButton(
         onPressed: ()=>print('Add'),
         child: Icon(Icons.add,color: Colors.white,),
+        tooltip: "varenyzc",
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
