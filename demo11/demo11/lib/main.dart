@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget{
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: ParentWidgetC(),
+      home: homePage(),
     );
   }
 }
@@ -214,5 +214,72 @@ class TapboxCState extends State<TapboxC> {
         ),
       ),
     );
+  }
+}
+
+class homePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Demo'),
+      ),
+      body: ProgressRouter(),
+    );
+  }
+}
+
+class ProgressRouter extends StatefulWidget {
+  @override
+  ProgressRouterState createState() => new ProgressRouterState();
+}
+
+class ProgressRouterState extends State<ProgressRouter> with SingleTickerProviderStateMixin{
+  AnimationController _animationController;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.grey[200],
+                valueColor: ColorTween(begin: Colors.grey,end: Colors.blue).
+                      animate(_animationController),
+                value: _animationController.value,
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _animationController = new AnimationController(vsync: this,duration: Duration(seconds: 3));
+    _animationController.forward();
+    _animationController.addListener(() => setState((){}));
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(ProgressRouter oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
   }
 }
