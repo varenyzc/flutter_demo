@@ -22,18 +22,46 @@ class MyHomePage extends StatelessWidget{
           title:Text('Demo')
       ),
       body: Center(
-        child: RaisedButton(
-          child: Text('toNext'),
-          onPressed: (){
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context){
-                  return CustomScrollViewTestRoute();
-                }
-              )
-            );
-          },
-        ),
+        child: Column(
+         children: <Widget>[
+           RaisedButton(
+             child: Text('toNext'),
+             onPressed: (){
+               Navigator.of(context).push(
+                   MaterialPageRoute(
+                       builder: (BuildContext context){
+                         return CustomScrollViewTestRoute();
+                       }
+                   )
+               );
+             },
+           ),
+           RaisedButton(
+             child: Text('ScrollBarTest'),
+             onPressed: () {
+               Navigator.of(context).push(
+                 MaterialPageRoute(
+                   builder: (BuildContext context){
+                     return ScrollControlerTestRoute();
+                   }
+                 )
+               );
+             }
+           ),
+           RaisedButton(
+             child: Text('ScrollNotificationTest'),
+             onPressed: (){
+               Navigator.of(context).push(
+                 MaterialPageRoute(
+                   builder: (BuildContext context){
+                     return ScrollNotificationTestRoute();
+                   }
+                 )
+               );
+             },
+           )
+         ],
+        )
       ),
     );
   }
@@ -92,5 +120,153 @@ class CustomScrollViewTestRoute extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class ScrollControlerTestRoute extends StatefulWidget {
+  @override
+  ScrollControlerTestRouteState createState() => new ScrollControlerTestRouteState();
+}
+
+class ScrollControlerTestRouteState extends State<ScrollControlerTestRoute> {
+
+  ScrollController _controller = new ScrollController();
+  bool showToTopBtn = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('滑动控制demo'),
+      ),
+      body: Scrollbar(
+        child: ListView.builder(
+            itemBuilder: (context,index){
+              return ListTile(title: Text("$index"),);
+            },
+            itemExtent: 50.0,
+            itemCount: 100,
+            controller: _controller,
+        ),
+      ),
+      floatingActionButton: !showToTopBtn?null:FloatingActionButton(
+        child: Icon(Icons.arrow_upward),
+        onPressed: (){
+          _controller.animateTo(
+              .0,
+              duration: Duration(milliseconds: 200),
+              curve: Curves.ease
+          );
+        },
+      ),
+    );
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _controller.addListener((){
+      print(_controller.offset);
+      if(_controller.offset<1000 && showToTopBtn) {
+        setState(() {
+          showToTopBtn = false;
+        });
+      }else if(_controller.offset>=1000 && showToTopBtn==false){
+        setState(() {
+          showToTopBtn = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
+  }
+
+  @override
+  void didUpdateWidget(ScrollControlerTestRoute oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+}
+
+class ScrollNotificationTestRoute extends StatefulWidget {
+  @override
+  ScrollNotificationTestRouteState createState() => new ScrollNotificationTestRouteState();
+}
+
+class ScrollNotificationTestRouteState extends State<ScrollNotificationTestRoute> {
+
+  String _progress = "0%";
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('NotificationTest'),
+      ),
+      body: Scrollbar(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification notification){
+            double progress = notification.metrics.pixels /
+                notification.metrics.maxScrollExtent;
+            setState(() {
+              _progress = "${(progress*100).toInt()}%";
+            });
+            print("BottomEdge: ${notification.metrics.extentAfter == 0}");
+            return true;
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              ListView.builder(
+                  itemBuilder: (context,index){
+                    return ListTile(title: Text('$index'));
+                  },
+                  itemCount: 100,
+                  itemExtent: 50.0,
+              ),
+              CircleAvatar(
+                radius: 30.0,
+                child: Text(_progress),
+                backgroundColor: Colors.black54,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(ScrollNotificationTestRoute oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
   }
 }
