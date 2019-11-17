@@ -207,12 +207,33 @@ class ScrollNotificationTestRoute extends StatefulWidget {
 class ScrollNotificationTestRouteState extends State<ScrollNotificationTestRoute> {
 
   String _progress = "0%";
+  DateTime _lastPressedAt;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('NotificationTest'),
+        leading: WillPopScope(
+          onWillPop: () async{
+            if(_lastPressedAt == null || DateTime.now().difference(_lastPressedAt)>Duration(seconds: 1)) {
+              _lastPressedAt = DateTime.now();
+              return false;
+            }
+            return true;
+          },
+          child: IconButton(
+            icon: Icon(Icons.arrow_back_ios),
+            onPressed: (){
+              if(_lastPressedAt == null || DateTime.now().difference(_lastPressedAt)>Duration(seconds: 2)) {
+                _lastPressedAt = DateTime.now();
+                return;
+              }//2秒内连续按leading退出
+              //return true;
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
       ),
       body: Scrollbar(
         child: NotificationListener<ScrollNotification>(
