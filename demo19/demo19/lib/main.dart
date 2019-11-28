@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:ScaleAnimationRoute3()
+      home:AnimatedSwitcherCounterRoute()
     );
   }
 }
@@ -284,6 +284,270 @@ class ScaleAnimationRoute3State extends State<ScaleAnimationRoute3> with SingleT
 
   @override
   void didUpdateWidget(ScaleAnimationRoute3 oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+}
+
+class HeroAnimationRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('HeroAnimationRoute'),
+      ),
+      body: Container(
+          alignment: Alignment.topCenter,
+          child: InkWell(
+            child: Hero(
+              tag:"avatar",
+              child: ClipOval(
+                child: Image.network("https://varenyzc.github.io/assets/img/avatar.webp",
+                  width: 50.0,
+                ),
+              ),
+            ),
+            onTap: (){
+              Navigator.push(context,PageRouteBuilder(
+                pageBuilder: (context,animation,secondaryAnimation){
+                  return FadeTransition(
+                    opacity: animation,
+                    child: Scaffold(
+                      appBar: AppBar(
+                        title: Text("原图"),
+                      ),
+                      body: HeroAnimationRouteB(),
+                    ),
+                  );
+                }
+              ));
+            },
+          ),
+        ),
+    );
+  }
+}
+
+class HeroAnimationRouteB extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Hero(
+        tag: "avatar",
+        child: Image.network("https://varenyzc.github.io/assets/img/avatar.webp"),
+      ),
+    );
+  }
+}
+
+class StaggerAnimation extends StatelessWidget{
+
+  StaggerAnimation({Key key,this.controller}) : super(key:key){
+    height = Tween<double>(
+      begin: .0,
+      end: 300.0,
+    ).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Interval(
+          0.0,0.6,
+          curve: Curves.ease,
+        )
+      )
+    );
+
+    color = ColorTween(
+      begin: Colors.green,
+      end: Colors.red,
+    ).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Interval(
+          0.0,0.6,
+          curve: Curves.ease,
+        )
+      )
+    );
+
+    padding = Tween<EdgeInsets>(
+      begin: EdgeInsets.only(left: .0),
+      end: EdgeInsets.only(left: 100.0)
+    ).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Interval(
+          0.6,1.0,
+          curve: Curves.ease
+        )
+      )
+    );
+  }
+
+  final Animation<double> controller;
+  Animation<double> height;
+  Animation<EdgeInsets> padding;
+  Animation<Color> color;
+
+  Widget _buildAnimation(BuildContext context,Widget child){
+    return Container(
+      alignment: Alignment.bottomCenter,
+      padding: padding.value,
+      child: Container(
+        color: color.value,
+        width: 50.0,
+        height: height.value,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      builder: _buildAnimation,
+      animation: controller,
+    );
+  }
+}
+
+class StaggerRoute extends StatefulWidget {
+  @override
+  StaggerRouteState createState() => new StaggerRouteState();
+}
+
+class StaggerRouteState extends State<StaggerRoute> with SingleTickerProviderStateMixin{
+
+  AnimationController controller;
+
+  Future<Null> _playAnimation() async{
+    try{
+      await controller.forward().orCancel;
+      await controller.reverse().orCancel;
+    }on TickerCanceled{
+
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('StaggerRoute'),
+      ),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: (){
+          _playAnimation();
+        },
+        child: Center(
+          child: Container(
+            width: 300.0,
+            height: 300.0,
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.1),
+              border: Border.all(
+                color: Colors.black.withOpacity(0.5)
+              )
+            ),
+            child: StaggerAnimation(
+              controller: controller,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller = AnimationController(
+      duration: Duration(milliseconds: 2000),
+      vsync: this
+    );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(StaggerRoute oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+}
+
+class AnimatedSwitcherCounterRoute extends StatefulWidget {
+  @override
+  AnimatedSwitcherCounterRouteState createState() => new AnimatedSwitcherCounterRouteState();
+}
+
+class AnimatedSwitcherCounterRouteState extends State<AnimatedSwitcherCounterRoute> {
+
+  int _count = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('AnimatedSwitcherCounterRoute'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            AnimatedSwitcher(
+              duration: Duration(milliseconds: 500),
+              transitionBuilder: (child,animation){
+                return ScaleTransition(child: child,scale: animation,);
+              },
+              child: Text(
+                "$_count",
+                //显示指定key，不同的key会被认为是不同的Text，这样才能执行动画
+                key: ValueKey<int>(_count),
+                style: Theme.of(context).textTheme.display1,
+              ),
+            ),
+            RaisedButton(
+              child: Text("+1"),
+              onPressed: (){
+                setState(() {
+                  _count ++;
+                });
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(AnimatedSwitcherCounterRoute oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
   }
